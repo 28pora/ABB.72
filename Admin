@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - ABB Crêpes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a0033 0%, #2d1b4e 50%, #1a0033 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: rgba(138, 43, 226, 0.15);
+            border-radius: 20px;
+            border: 2px solid rgba(138, 43, 226, 0.4);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #9d4edd;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(157, 78, 221, 0.5);
+        }
+
+        .header .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #9d4edd, #7b2cbf);
+            padding: 8px 20px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .admin-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .admin-btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #9d4edd, #7b2cbf);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(157, 78, 221, 0.4);
+        }
+
+        .admin-btn.danger {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(30, 30, 50, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            color: #9d4edd;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #b8b8b8;
+            font-size: 1.1em;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+
+        .reviews-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .review-card {
+            background: rgba(30, 30, 50, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .review-author {
+            font-weight: bold;
+            color: #9d4edd;
+            font-size: 1.1em;
+        }
+
+        .review-date {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .review-rating {
+            color: #ffd700;
+            font-size: 1.2em;
+        }
+
+        .review-text {
+            color: #d0d0d0;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .review-details {
+            background: rgba(50, 50, 70, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .review-details div {
+            margin-bottom: 8px;
+            color: #b8b8b8;
+        }
+
+        .review-details strong {
+            color: #9d4edd;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 10px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(138, 43, 226, 0.2);
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn.edit {
+            background: rgba(59, 130, 246, 0.3);
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            color: #60a5fa;
+        }
+
+        .action-btn.edit:hover {
+            background: rgba(59, 130, 246, 0.5);
+        }
+
+        .action-btn.delete {
+            background: rgba(220, 38, 38, 0.3);
+            border: 2px solid rgba(220, 38, 38, 0.5);
+            color: #f87171;
+        }
+
+        .action-btn.delete:hover {
+            background: rgba(220, 38, 38, 0.5);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a0033 0%, #2d1b4e 100%);
+            margin: 50px auto;
+            padding: 40px;
+            border: 2px solid rgba(138, 43, 226, 0.5);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            color: #9d4edd;
+            font-size: 1.8em;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #9d4edd;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b8b8b8;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(50, 50, 70, 0.5);
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn-save {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #9d4edd, #7b2cbf);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            padding: 12px 30px;
+            background: rgba(100, 100, 120, 0.3);
+            border: 2px solid rgba(100, 100, 120, 0.5);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .no-reviews {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+                margin: 20px auto;
+            }
+
+            .admin-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Panel Admin - ABB Crêpes</h1>
+            <div class="badge">👤 ACCÈS ADMINISTRATEUR</div>
+        </div>
+
+        <div class="admin-controls">
+            <button class="admin-btn" onclick="exportToExcel()">📊 Télécharger Excel</button>
+            <button class="admin-btn" onclick="refreshData()">🔄 Actualiser</button>
+            <button class="admin-btn danger" onclick="clearAllData()">🗑️ Tout supprimer</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="avgRating">0</div>
+                <div class="stars">★★★★★</div>
+                <div class="stat-label">Note Moyenne</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number" id="totalReviews">0</div>
+                <div class="stat-label">Avis Total</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number" id="satisfied">0%</div>
+                <div class="stat-label">Clients Satisfaits</div>
+            </div>
+        </div>
+
+        <div class="reviews-list" id="reviewsList"></div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Modifier l'avis</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                
+                <div class="form-group">
+                    <label for="editAuthor">Prénom</label>
+                    <input type="text" id="editAuthor" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editRating">Note (1-5)</label>
+                    <input type="number" id="editRating" min="1" max="5" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editText">Commentaire</label>
+                    <textarea id="editText" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDate">Date</label>
+                    <input type="date" id="editDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editTime">Heure</label>
+                    <input type="time" id="editTime" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
+                    <button type="submit" class="btn-save">💾 Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        function loadReviews() {
+            const saved = localStorage.getItem('abb_crepes_reviews');
+            return saved ? JSON.parse(saved) : [];
+        }
+
+        function saveReviews(reviews) {
+            localStorage.setItem('abb_crepes_reviews', JSON.stringify(reviews));
+        }
+
+        function renderReviews() {
+            const reviews = loadReviews();
+            const reviewsList = document.getElementById('reviewsList');
+
+            if (reviews.length === 0) {
+                reviewsList.innerHTML = '<div class="no-reviews">Aucun avis trouvé. Les clients peuvent ajouter des avis depuis la page Client.</div>';
+                return;
+            }
+
+            reviewsList.innerHTML = reviews.map(review => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div>
+                            <div class="review-author">${review.author} (ID: ${review.id})</div>
+                            <div class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</div>
+                        </div>
+                        <div class="review-date">${formatDate(review.date)} à ${review.heure}</div>
+                    </div>
+                    <div class="review-text">${review.text}</div>
+                    
+                    ${review.questionnaire ? `
+                    <div class="review-details">
+                        <div><strong>Intéressé livraison:</strong> ${review.questionnaire.deliveryInterest || 'N/A'}</div>
+                        <div><strong>Moments:</strong> ${review.questionnaire.moments || 'N/A'}</div>
+                        <div><strong>Type crêpes:</strong> ${review.questionnaire.typeCrepesPreferees || 'N/A'}</div>
+                        <div><strong>Note goût:</strong> ${review.questionnaire.noteGout || 'N/A'}/5 | 
+                             <strong>Qualité:</strong> ${review.questionnaire.noteQualite || 'N/A'}/5 | 
+                             <strong>Recommandation:</strong> ${review.questionnaire.noteRecommandation || 'N/A'}/5</div>
+                    </div>
+                    ` : ''}
+
+                    <div class="review-actions">
+                        <button class="action-btn edit" onclick="editReview(${review.id})">✏️ Modifier</button>
+                        <button class="action-btn delete" onclick="deleteReview(${review.id})">🗑️ Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('fr-FR', options);
+        }
+
+        function updateStats() {
+            const reviews = loadReviews();
+            if (reviews.length === 0) {
+                document.getElementById('totalReviews').textContent = '0';
+                document.getElementById('avgRating').textContent = '-';
+                document.getElementById('satisfied').textContent = '-';
+                return;
+            }
+
+            const total = reviews.length;
+            const avgRating = (reviews.reduce((sum, r) => sum + r.rating, 0) / total).toFixed(1);
+            const satisfied = Math.round((reviews.filter(r => r.rating >= 4).length / total) * 100);
+            
+            document.getElementById('totalReviews').textContent = total;
+            document.getElementById('avgRating').textContent = avgRating;
+            document.getElementById('satisfied').textContent = satisfied + '%';
+        }
+
+        function editReview(id) {
+            const reviews = loadReviews();
+            const review = reviews.find(r => r.id === id);
+            
+            if (review) {
+                document.getElementById('editId').value = review.id;
+                document.getElementById('editAuthor').value = review.author;
+                document.getElementById('editRating').value = review.rating;
+                document.getElementById('editText').value = review.text;
+                document.getElementById('editDate').value = review.date;
+                document.getElementById('editTime').value = review.heure;
+                
+                document.getElementById('editModal').style.display = 'block';
+            }
+        }
+
+        function deleteReview(id) {
+            if (confirm('⚠️ Êtes-vous sûr de vouloir supprimer cet avis ?')) {
+                const reviews = loadReviews();
+                const filtered = reviews.filter(r => r.id !== id);
+                saveReviews(filtered);
+                refreshData();
+                alert('✅ Avis supprimé avec succès !');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = parseInt(document.getElementById('editId').value);
+            const reviews = loadReviews();
+            const reviewIndex = reviews.findIndex(r => r.id === id);
+            
+            if (reviewIndex !== -1) {
+                reviews[reviewIndex].author = document.getElementById('editAuthor').value;
+                reviews[reviewIndex].rating = parseInt(document.getElementById('editRating').value);
+                reviews[reviewIndex].text = document.getElementById('editText').value;
+                reviews[reviewIndex].date = document.getElementById('editDate').value;
+                reviews[reviewIndex].heure = document.getElementById('editTime').value;
+                
+                saveReviews(reviews);
+                closeModal();
+                refreshData();
+                alert('✅ Avis modifié avec succès !');
+            }
+        });
+
+        function refreshData() {
+            updateStats();
+            renderReviews();
+        }
+
+        function exportToExcel() {
+            const reviews = loadReviews();
+            
+            if (reviews.length === 0) {
+                alert('❌ Aucun avis à exporter !');
+                return;
+            }
+
+            const data = reviews.map(r => ({
+                'ID': r.id,
+                'Date': r.date,
+                'Heure': r.heure,
+                'Prénom': r.author,
+                'Note Globale': r.rating,
+                'Intéressé Livraison': r.questionnaire?.deliveryInterest || '',
+                'Moments de Commande': r.questionnaire?.moments || '',
+                'Type Crêpes': r.questionnaire?.typeCrepesPreferees || '',
+                'Note Goût': r.questionnaire?.noteGout || '',
+                'Note Qualité': r.questionnaire?.noteQualite || '',
+                'Note Recommandation': r.questionnaire?.noteRecommandation || '',
+                'Commentaire': r.text
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            ws['!cols'] = [
+                {wch: 5}, {wch: 12}, {wch: 8}, {wch: 15}, {wch: 12},
+                {wch: 18}, {wch: 25}, {wch: 15}, {wch: 10}, {wch: 12},
+                {wch: 18}, {wch: 50}
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Avis Clients");
+
+            const stats = [
+                ['Métrique', 'Valeur'],
+                ['Total Avis', reviews.length],
+                ['Note Moyenne', (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)],
+                ['% Clients Satisfaits (4-5★)', Math.round((reviews.filter(r => r.rating >= 4).length / reviews.length) * 100) + '%']
+            ];
+
+            const ws2 = XLSX.utils.aoa_to_sheet(stats);
+            ws2['!cols'] = [{wch: 30}, {wch: 20}];
+            XLSX.utils.book_append_sheet(wb, ws2, "Statistiques");
+
+            XLSX.writeFile(wb, `ABB_Crepes_Admin_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ ATTENTION ! Voulez-vous vraiment supprimer TOUS les avis ?')) {
+                if (confirm('✋ Dernière confirmation : tous les avis seront DÉFINITIVEMENT supprimés !')) {
+                    localStorage.removeItem('abb_crepes_reviews');
+                    refreshData();
+                    alert('✅ Toutes les données ont été supprimées.');
+                }
+            }
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('editModal')) {
+                closeModal();
+            }
+        }
+
+        refreshData();
+    </script>
+</body>
+</html>
